@@ -1,10 +1,17 @@
 // Library
 #include <DHT.h>
 #include <DigitShield.h>
+#include <SoftwareSerial.h>
 
 // initialize
+#define rxPin 12 // BT rx
+#define txPin 13 // BT tx
+
 #define DHTPIN 12 // 온습도 센서 12번에 연결
 #define DHTTYPE DHT11
+
+SoftwareSerial.BTSerial(rxPin, txPin);
+char rcv_data; // BT를 통해 받은 값
 
 DHT dht(DHTPIN, DHTTYPE); // DHT 설정
 
@@ -13,9 +20,9 @@ int water = 0;
 
 void setup() {
 Serial.begin(9600);
+BTSerial.begin(9600);
 DigitShield.begin();
 dht.begin();
-// Serial.begin(9600);
 pinMode(motor,OUTPUT);
 
 }
@@ -41,7 +48,15 @@ void loop() {
   Serial.println(water);
   DigitShield.setValue(water);
 
-  if(water <= 900) {
+if(BTSerial.available()){
+  rcv_data = BTSerial.read();
+  if(rcv_dat== 'd') // d 입력 시 실행
+  {
+    BTSerial.write(h);
+    BTSerial.write(t);
+    BTSerial.write(water);
+    }
+    if(water <= 900) {
   Serial.println("wet");
   digitalWrite(motor, LOW);
     }
@@ -49,4 +64,5 @@ void loop() {
   Serial.println("dry");
   digitalWrite(motor, HIGH);
    }
+  }  
  }
