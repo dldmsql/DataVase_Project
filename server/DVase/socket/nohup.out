@@ -1,0 +1,9 @@
+/var/www/socket/start.sh: 2: /var/www/socket/start.sh: : not found
+/var/www/socket/start.sh: 3: /var/www/socket/start.sh: : not found
+PHP Fatal error:  Uncaught RuntimeException: Failed to listen on "tcp://0.0.0.0:8000": Address already in use in /var/www/vendor/react/socket/src/TcpServer.php:164
+Stack trace:
+#0 /var/www/vendor/react/socket/src/Server.php(36): React\Socket\TcpServer->__construct('tcp://0.0.0.0:8...', Object(React\EventLoop\StreamSelectLoop), Array)
+#1 /var/www/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php(59): React\Socket\Server->__construct('0.0.0.0:8000', Object(React\EventLoop\StreamSelectLoop))
+#2 /var/www/socket/server.php(17): Ratchet\Server\IoServer::factory(Object(Ratchet\Http\HttpServer), 8000)
+#3 {main}
+  thrown in /var/www/vendor/react/socket/src/TcpServer.php on line 164

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="DVaseServer">
+    <serverData>
+      <paths name="DVaseServer">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/application/cache" />
+            <excludedPath path="/application/core" />
+            <excludedPath path="/application/DataVase_Project" />
+            <excludedPath path="/application/helpers" />
+            <excludedPath path="/application/hooks" />
+            <excludedPath path="/application/language" />
+            <excludedPath path="/application/logs" />
+            <excludedPath path="/application/third_party" />
+            <excludedPath path="/html/htdocs" />
+            <excludedPath path="/html/img" />
+            <excludedPath path="/html/include" />
+            <excludedPath path="/html/mentor" />
+            <excludedPath path="/html/phpmyadmin" />
+            <excludedPath path="/html/user_guide" />
+            <excludedPath path="/html/vendor" />
+            <excludedPath path="/html/websocket" />
+            <excludedPath path="/system" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/cache" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/core" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/DataVase_Project" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/helpers" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/hooks" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/language" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/logs" />
+            <excludedPath local="true" path="$PROJECT_DIR$/application/third_party" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/htdocs" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/img" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/include" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/mentor" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/phpmyadmin" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/user_guide" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/vendor" />
+            <excludedPath local="true" path="$PROJECT_DIR$/html/websocket" />
+            <excludedPath local="true" path="$PROJECT_DIR$/system" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
