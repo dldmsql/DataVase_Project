@@ -198,7 +198,7 @@
 
 				<div class="mt-4 div_infor">
 					<div>
-						<span class="glyphicons glyphicons-user"></span> <input type="text" class="px-2" ID="ID" placeholder="아이디">
+						<span class="glyphicons glyphicons-user"></span> <input type="text" class="px-2" ID="ID" placeholder="아이디ddd">
 						
 						<br>
 
