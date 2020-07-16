@@ -4,13 +4,13 @@
 #include <SoftwareSerial.h>
 
 // initialize
-#define rxPin 12 // BT rx
-#define txPin 13 // BT tx
+#define rxPin 8 // BT rx
+#define txPin 7 // BT tx
 
 #define DHTPIN 12 // 온습도 센서 12번에 연결
 #define DHTTYPE DHT11
 
-SoftwareSerial.BTSerial(rxPin, txPin);
+SoftwareSerial BTSerial(rxPin, txPin);
 char rcv_data; // BT를 통해 받은 값
 
 DHT dht(DHTPIN, DHTTYPE); // DHT 설정
@@ -50,7 +50,7 @@ void loop() {
 
 if(BTSerial.available()){
   rcv_data = BTSerial.read();
-  if(rcv_dat== 'd') // d 입력 시 실행
+  if(rcv_data == 'd') // d 입력 시 실행
   {
     BTSerial.write(h);
     BTSerial.write(t);
