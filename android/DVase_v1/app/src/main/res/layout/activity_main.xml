@@ -12,10 +12,12 @@
         android:orientation="vertical">
 
         <Button
-            android:layout_width="match_parent"
+            android:layout_width="80dp"
             android:layout_height="80dp"
+            android:layout_gravity="end"
+            android:layout_marginRight="10dp"
             android:id="@+id/btnCamera"
-            android:text="카메라"/>
+            android:background="@drawable/camera"/>
 
         <ImageView
             android:layout_width="match_parent"
