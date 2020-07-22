@@ -14,7 +14,6 @@ define( "SITE_URL", "http://15.164.251.97" );
 
 /* ---------------------------site specific*****************************/
 
-define( "ERRORMSG_SIGNUP_FAIL", "회원가입에 실패했습니다. 담당자에게 문의해주세요." );
 
 define( "KEY_POST_RETURN", "return" );
 define( "KEY_POST_MSG", "msg" );
