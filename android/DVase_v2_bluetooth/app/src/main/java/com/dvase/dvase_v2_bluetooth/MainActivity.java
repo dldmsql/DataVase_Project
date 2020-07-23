@@ -1,6 +1,7 @@
 package com.dvase.dvase_v2_bluetooth;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.R;
 import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.Activity;
