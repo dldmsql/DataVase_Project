@@ -1,7 +1,6 @@
 package com.dvase.dvase_v2_bluetooth;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.R;
 import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.Activity;
@@ -14,6 +13,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -132,10 +133,14 @@ public class MainActivity extends AppCompatActivity {
         int txt = 0;
         if ( isInt ) txt = Integer.parseInt( text );
 
+        Log.d(TAG, "데이터보냄");
+
         try{
             // 데이터 송신
             if ( isInt) outputStream.write(txt);
             else outputStream.write(text.getBytes());
+
+//            outputStream.flush();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -157,16 +162,19 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==CAMERA_REQUEST_CODE){
 
             Bundle bundle = data.getExtras();
+            bundle.get("data");
 
             Bitmap bitmap = (Bitmap) bundle.get("data");
-            img.setImageBitmap(bitmap);
+            Bitmap compressBitmap = compressBitmap(bitmap);
+            img.setImageBitmap(compressBitmap);
 
             String destFolder = Environment.getExternalStorageDirectory().toString();
             String date = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss").format(new Date());
 
             try {
                 FileOutputStream out = new FileOutputStream(destFolder + "/video/" + date + ".jpg");
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                compressBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 Toast.makeText(this, "사진 자동 업로드", Toast.LENGTH_SHORT).show();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -193,6 +201,28 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+    private Bitmap compressBitmap(Bitmap bitmap){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100, stream);
+        byte[] byteArray = stream.toByteArray();
+        Bitmap compressedBitmap = BitmapFactory.decodeByteArray(byteArray,0,byteArray.length);
+        return compressedBitmap;
+    }
+    public void setup(){
+        btnCamera = (Button)findViewById(R.id.btnCamera);
+        img = (ImageView)findViewById(R.id.img);
+
+        btnCamera.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(IsCameraAvailable()){
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                }
+            }
+        });
     }
     public void selectBluetoothDevice() {
         // 이미 페어링 되어있는 블루투스 기기를 찾습니다.
@@ -229,7 +259,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     // 해당 디바이스와 연결하는 함수 호출
                     deviceName = charSequences[which].toString();
-                    connectDevice(deviceName);
+
+                    if ( !deviceName.equals("취소")){
+                        connectDevice(deviceName);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "블루투스 연결을 취소하셨습니다.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             // 뒤로가기 버튼 누를 때 창이 안닫히도록 설정
@@ -309,22 +345,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         workerThread.start();
-    }
-
-    public void setup(){
-        btnCamera = (Button)findViewById(R.id.btnCamera);
-        img = (ImageView)findViewById(R.id.img);
-
-        btnCamera.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                if(IsCameraAvailable()){
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
-                }
-            }
-        });
     }
 
     private void btControl(){
