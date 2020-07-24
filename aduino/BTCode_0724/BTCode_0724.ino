@@ -11,7 +11,7 @@
 #define DHTTYPE DHT11
 
 SoftwareSerial BTSerial(rxPin, txPin);
-int rcv_data; // BT를 통해 받은 값
+char rcv_data; // BT를 통해 받은 값
 
 DHT dht(DHTPIN, DHTTYPE); // DHT 설정
 
@@ -20,7 +20,7 @@ int water = 0; // water 변수 0으로 초기화
 int isInit = 0;
 
 // pre_Value
-float preSH = 0;
+float preSH = 1000;
 
 void setup() {
   Serial.begin(9600);
@@ -32,7 +32,7 @@ void setup() {
 
 void loop() {
 
-  delay(500);
+  delay(1000);
   float h = dht.readHumidity(); // 습도값 저장
   float t = dht.readTemperature(); // 온도값 저장
   float f = dht.readTemperature(true); // 화씨 온도 측정
@@ -42,12 +42,12 @@ void loop() {
   //  Serial.print(h);
   //  Serial.print("% ");
   DigitShield.setValue(h);
-  delay(500);
+  delay(1000);
   //  Serial.print("Temperature: ");
   //  Serial.print(hic);
   //  Serial.println("C");
   DigitShield.setValue(t);
-  delay(500);
+  delay(1000);
   water = analogRead(A3); // 토양 습도 체크
   //  Serial.print("Soil humidity: ");
   //  Serial.println(water);
@@ -59,7 +59,7 @@ void loop() {
   }
   delay(1000);
 
-  // send data to Android
+  // show data to Serial Moniter
   Serial.println("");
   Serial.print("humid : ");
   Serial.println(h);
@@ -68,8 +68,9 @@ void loop() {
   Serial.print("water : ");
   Serial.println(water);
 
+  // send data to Android
   if (water > 850) {
-    if (abs(water - preSH) > 50 ) {
+    if ((abs(water - preSH) > 50) && (isInit == 1)) {
       BTSerial.println(h);
       BTSerial.println(t);
       BTSerial.println(water);
@@ -85,32 +86,30 @@ void loop() {
 
   if (BTSerial.available()) { // receive data from Android
 
-    rcv_data = BTSerial.read();
-    Serial.print("Bluetooth data int type : ");
-    Serial.println(rcv_data);
-    if (rcv_data > 96) // ASCII 48 = 0
-    {
-      char data = (char)rcv_data;
-      //   delay(4000);
-      Serial.print("receive data[char] from Android : ");
-      Serial.println(data);
+    rcv_data = (char)BTSerial.read();
 
-      // control the water pump
-      if (data == 'a')
-      {
-        Serial.println("Moter ON");
-        digitalWrite(motor, HIGH); // ON
-        delay(1000);
-        digitalWrite(motor, LOW); // OFF
-      }
-      data = ' ';
+    Serial.print("receive data[char] from Android : ");
+    Serial.println(rcv_data);
+
+    // control the water pump
+    if (rcv_data == 'a')
+    {
+      Serial.println("Moter ON");
+      digitalWrite(motor, HIGH); // ON
+      delay(1000);
+      digitalWrite(motor, LOW); // OFF
     }
+    rcv_data = ' ';
   }
+
 }
 void checkConnect() {
 
   if (BTSerial.available()) {
-    Serial.write(BTSerial.read()); // Android connect success!
+    char con = (char)BTSerial.read();
+    Serial.println("Hello");
+    Serial.print("Connect Message : ");
+    Serial.write(con); // Android connect success!
     isInit = 1;
   }
 }

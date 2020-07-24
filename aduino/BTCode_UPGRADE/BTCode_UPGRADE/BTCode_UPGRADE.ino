@@ -35,6 +35,7 @@ void loop() {
   float hif = dht.computeHeatIndex(f,h);
   float hic = dht.computeHeatIndex(t,h,false);
   Serial.print("Humidity: ");
+  Serial.print(h);
   Serial.print("% ");
   DigitShield.setValue(h);
   delay(500);
