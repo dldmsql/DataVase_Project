@@ -1,8 +1,11 @@
 import numpy as np
 import cv2
+import Constants
 
 from tkinter import *
 from tkinter import filedialog
+
+from PlantsSet import PlantsSet
 
 def imageMatching( image_path1, image_path2 ) :
     difference = 0
@@ -21,14 +24,14 @@ def imageMatching( image_path1, image_path2 ) :
     matches = sorted( matches, key = lambda x:x.distance )
 
     lengthCount = len( matches )
-    if lengthCount > 30 :
-        lengthCount = 30
+    if lengthCount > Constants.COMPARE_MAX :
+        lengthCount = Constants.COMPARE_MAX
 
     for i in range( lengthCount ) :
         difference = difference + matches[i].distance
 
     difference = difference / lengthCount
-    print( difference )
+    #print( difference )
     
     """
     res = cv2.drawMatches( image1, kp1, image2, kp2, matches[:50], res, 
@@ -47,20 +50,21 @@ def imageMatching( image_path1, image_path2 ) :
     cv2.destroyAllWindows()
     return difference
 
-rose = [ "ROSE", "rose1.jpg", "rose2.jpg", "rose3.jpg", "rose4.jpg", "rose5.png", "rose6.jpg", "rose7.jpg", "rose8.jpg", "rose9.jpg", "rose10.jpg" ]
-tulip = [ "TULIP", "tulip1.jpg", "tulip2.jpg", "tulip3.jpg", "tulip4.jpg", "tulip5.jpg", "tulip6.jpg", "tulip7.jpg", "tulip8.jpg", "tulip9.jpg", "tulip10.jpg" ]
-acasia = [ "ACASIA", "acasia1.jpg", "acasia2.jpg", "acasia3.jpg", "acasia4.jpg", "acasia5.jpg", "acasia6.jpg", "acasia7.jpg", "acasia8.jpg", "acasia9.jpg", "acasia10.jpg" ]
-sansevieria = [ "SANSEVIERIA", "sansevieria1.jpg", "sansevieria2.jpg", "sansevieria3.jpg", "sansevieria4.jpg", "sansevieria5.jpg", "sansevieria6.jpg", "sansevieria7.jpg", "sansevieria8.jpg", "sansevieria9.jpg", "sansevieria10.jpg" ]
+ps = PlantsSet()
+plantsList = ps.plantsList()
 
-plantsList = [ rose, tulip, acasia, sansevieria ]
+setList = []
 
-basePath = "C:/Users/LSJ/Desktop/simTest/"
-fileName = filedialog.askopenfilename( initialdir = "C:/Users/LSJ/Desktop/", title = "select file" )
+for i in plantsList :
+    tempList = ps.pictureList( i )
+    setList.append( tempList )
+
+fileName = filedialog.askopenfilename( initialdir = Constants.OPEN_ROOT, title = "select file" )
 
 scoreList = []
 
 if fileName != "" :
-    for plants in plantsList :
+    for plants in setList :
         isFirst = True
         title = ""
         for pict in plants :
@@ -68,14 +72,14 @@ if fileName != "" :
                 title = pict
                 isFirst = False
             else :
-                path = basePath + pict
+                path = Constants.BASE_PATH + title + "/" + pict
                 score = imageMatching( path, fileName )
                 temp = [ title, score ]
                 scoreList.append( temp )
     scoreList.sort( key = lambda x:x[1] )
 
     finalResult = []
-    for result in scoreList[:5] :
+    for result in scoreList[:Constants.TOP_SCORES] :
         isLoop = True
         temp = []
         plantsName = result[0]
