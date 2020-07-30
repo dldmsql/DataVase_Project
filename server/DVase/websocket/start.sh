@@ -1,3 +1,0 @@
-#bash
-
-php server.php & 
