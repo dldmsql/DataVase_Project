@@ -96,16 +96,16 @@ void loop() {
     {
       Serial.println("Moter ON");
       digitalWrite(motor, HIGH); // ON
-//      delay(1000);
-//      digitalWrite(motor, LOW); // OFF
+      delay(10000);
+      digitalWrite(motor, LOW); // OFF
     }
-    Serial.println("water : " + water);
-    if(abs(water - preSH) > 50)
-    {
-      Serial.println("MOTOR OFF");
-      digitalWrite(motor,LOW);
-      delay(1000);
-      }
+//    Serial.println("water : " + water);
+//    if(abs(water - preSH) > 50)
+//    {
+//      Serial.println("MOTOR OFF");
+//      digitalWrite(motor,LOW);
+//      delay(1000);
+//      }
     
     rcv_data = ' ';
   }
