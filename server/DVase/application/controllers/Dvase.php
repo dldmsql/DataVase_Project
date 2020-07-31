@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Dvase extends CI_Controller{
 
     public function index(){
-        echo "DVase";
+        echo "DVase222";
     }
     
     public function file_upload()
@@ -32,7 +32,7 @@ class Dvase extends CI_Controller{
 
         if ( $this->upload->do_upload() ) echo "uploaded";
         else echo "failed";
-        // }
+        // } 
     }
 }
 ?>
