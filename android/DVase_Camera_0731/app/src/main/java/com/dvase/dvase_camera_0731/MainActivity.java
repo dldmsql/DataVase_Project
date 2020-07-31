@@ -6,12 +6,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,15 +23,24 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    final String TAG = getClass().getSimpleName();
+    final String TAG = "kyurii";
     ImageView imageView;
     Button cameraBtn;
     final static int TAKE_PICTURE = 1;
@@ -193,6 +205,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
 
                             imageView.setImageBitmap(rotatedBitmap);
+
+                            imageUpload();
                         }
                     }
                     break;
@@ -203,6 +217,80 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             error.printStackTrace();
         }
     }
+    private void imageUpload() {
+        String ImageUploadURL = "http://15.164.251.97/test/file_upload";
+//        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
+
+        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+    }
+
+    String lineEnd = "\r\n";
+    String twoHyphens = "--";
+    String boundary = "*****";
+
+    public void HttpFileUpload(String urlString, String params, String fileName) {
+        try {
+            FileInputStream mFileInputStream;
+            mFileInputStream = new FileInputStream(fileName);
+            URL connectUrl = new URL(urlString);
+            Log.d("Test", "mFileInputStream  is " + mFileInputStream);
+
+            // open connection
+            HttpURLConnection conn = (HttpURLConnection)connectUrl.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+            // write data
+            DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+            dos.writeBytes(twoHyphens + boundary + lineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + fileName+"\"" + lineEnd);
+            dos.writeBytes(lineEnd);
+
+            int bytesAvailable = mFileInputStream.available();
+            int maxBufferSize = 1024;
+            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+
+            byte[] buffer = new byte[bufferSize];
+            int bytesRead = mFileInputStream.read(buffer, 0, bufferSize);
+
+            Log.d(TAG, "image byte is " + bytesRead);
+
+            // read image
+            while (bytesRead > 0) {
+                dos.write(buffer, 0, bufferSize);
+                bytesAvailable = mFileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = mFileInputStream.read(buffer, 0, bufferSize);
+            }
+
+            dos.writeBytes(lineEnd);
+            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // close streams
+            Log.e(TAG , "File is written");
+            mFileInputStream.close();
+            dos.flush(); // finish upload...
+
+            // get response
+            int ch;
+            InputStream is = conn.getInputStream();
+            StringBuffer b =new StringBuffer();
+            while( ( ch = is.read() ) != -1 ){
+                b.append( (char)ch );
+            }
+            String s=b.toString();
+            Log.e(TAG, "result = " + s);
+            dos.close();
+
+        } catch (Exception e) {
+            Log.d(TAG, "exception " + e.getMessage());
+            // TODO: handle exception
+        }
+    }
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
@@ -210,4 +298,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
+
+    //OKHTTP 사용 이미지 업로드 > 실패
+//
+//    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
+//        ProgressDialog progressDialog;
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            progressDialog = new ProgressDialog(MainActivity.this);
+//            progressDialog.setMessage("이미지 업로드중....");
+//            progressDialog.show();
+//        }
+//
+//        @Override
+//        protected Boolean doInBackground(String... params) {
+//            Log.d(TAG, "params[0] : " + params[0]);
+//            Log.d(TAG, "params[1] : " + params[1]);
+//            try {
+//                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
+//                if (jsonObject != null)
+//                    return jsonObject.getString("result").equals("success");
+//
+//            } catch (JSONException e) {
+//                Log.i("TAG", "Error : " + e.getLocalizedMessage());
+//            }
+//            return false;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean aBoolean) {
+//            super.onPostExecute(aBoolean);
+//            if (progressDialog != null)
+//                progressDialog.dismiss();
+//
+//            if (aBoolean)
+//                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
+//            else
+//                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
+////
+////            imagePath = "";
+////            textView.setVisibility(View.VISIBLE);
+////            imageView.setVisibility(View.INVISIBLE);
+//        }
+//    }
+
 }
