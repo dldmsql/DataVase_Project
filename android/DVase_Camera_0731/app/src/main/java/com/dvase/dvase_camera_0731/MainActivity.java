@@ -1,4 +1,4 @@
-package com.dvase.dvase_cameraonly;
+package com.dvase.dvase_camera_0731;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

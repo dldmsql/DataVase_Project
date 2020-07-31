@@ -1,4 +1,4 @@
-package com.dvase.dvase_cameraonly;
+package com.dvase.dvase_camera_0731;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.dvase.dvase_cameraonly", appContext.getPackageName());
+        assertEquals("com.dvase.dvase_camera_0731", appContext.getPackageName());
     }
 }
