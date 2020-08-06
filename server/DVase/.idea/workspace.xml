@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="817f2e3a-55e4-466c-a02c-72f7aa878aa0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/controllers/Dvase.php" beforeDir="false" afterPath="$PROJECT_DIR$/application/controllers/Dvase.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/html/dvaseFolder/testPython.py" beforeDir="false" afterPath="$PROJECT_DIR$/html/dvaseFolder/testPython.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,17 +51,21 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="361" y="74" key="#Deployment" timestamp="1596171549204">
+    <state x="361" y="74" key="#Deployment" timestamp="1596180304431">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="74" key="#Deployment/0.0.1536.824@0.0.1536.824" timestamp="1596171549204" />
+    <state x="361" y="74" key="#Deployment/0.0.1536.824@0.0.1536.824" timestamp="1596180304431" />
     <state x="361" y="74" key="#Options" timestamp="1596171564270">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="361" y="74" key="#Options/0.0.1536.824@0.0.1536.824" timestamp="1596171564270" />
-    <state x="93" y="93" width="1350" height="638" key="DirDiffDialog" timestamp="1596171612828">
+    <state x="535" y="221" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1596172248892">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="93" y="93" width="1350" height="638" key="DirDiffDialog/0.0.1536.824@0.0.1536.824" timestamp="1596171612828" />
+    <state x="535" y="221" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1596172248892" />
+    <state x="93" y="93" width="1350" height="638" key="DirDiffDialog" timestamp="1596173008694">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="93" y="93" width="1350" height="638" key="DirDiffDialog/0.0.1536.824@0.0.1536.824" timestamp="1596173008694" />
   </component>
 </project>

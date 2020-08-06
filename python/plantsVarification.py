@@ -20,7 +20,14 @@ def imageMatching( image_path1, image_path2 ) :
 
     bf = cv2.BFMatcher( cv2.NORM_HAMMING, crossCheck = True )
     matches = bf.match( des1, des2 )
+    """
+    clusters = np.array( [des1] )
+    bf.add( clusters )
 
+    bf.train()
+
+    matches = bf.match( des2 )
+    """
     matches = sorted( matches, key = lambda x:x.distance )
 
     lengthCount = len( matches )

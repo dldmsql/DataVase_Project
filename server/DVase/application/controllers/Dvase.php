@@ -6,6 +6,13 @@ class Dvase extends CI_Controller{
     public function index(){
         echo "DVase222";
     }
+
+    public function identifyPlants(){
+        $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
+        $output = shell_exec( $command );
+
+        echo $output;
+    }
     
     public function file_upload()
     {
@@ -32,7 +39,7 @@ class Dvase extends CI_Controller{
 
         if ( $this->upload->do_upload() ) echo "uploaded";
         else echo "failed";
-        // } 
+        // }
     }
 }
 ?>
