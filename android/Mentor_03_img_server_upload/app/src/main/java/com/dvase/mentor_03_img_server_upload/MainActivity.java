@@ -1,4 +1,5 @@
-package com.dvase.dvase_camera_0731;
+package com.dvase.mentor_03_img_server_upload;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -79,37 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
         }
     }
-
-    // 버튼 onClick리스터 처리부분
-//    @Override
-//    public void onClick(View v) {
-//        switch(v.getId()){
-//            case R.id.camera_button:
-//                // 카메라 앱을 여는 소스
-//                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//                startActivityForResult(cameraIntent, TAKE_PICTURE);
-//                break;
-//        }
-//    }
-//
-//    // 카메라로 촬영한 영상을 가져오는 부분
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        super.onActivityResult(requestCode, resultCode, intent);
-//
-//        switch (requestCode) {
-//            case TAKE_PICTURE:
-//                if (resultCode == RESULT_OK && intent.hasExtra("data")) {
-//                    Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
-//                    if (bitmap != null) {
-//                        imageView.setImageBitmap(bitmap);
-//                    }
-//
-//                }
-//                break;
-//        }
-//    }
-
     @Override
     public void onClick(View v) {
         switch(v.getId()){
@@ -137,21 +107,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Log.d(TAG, "dispatchTakePictureIntent" );
+        Intent takePictureIntent = new Intent( MediaStore.ACTION_IMAGE_CAPTURE );
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
+                Log.d(TAG, "photoFile : " + photoFile);
             } catch (IOException ex) {
                 // Error occurred while creating the File
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.roopre.cameratutorial.fileprovider",
-                        photoFile);
+                Uri photoURI = FileProvider.getUriForFile(this,"com.example.myapp.fileprovider", photoFile);
+                Log.d(TAG, "photoURI : " + photoURI );
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
@@ -163,20 +134,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, intent);
         try {
             switch (requestCode) {
-//                case REQUEST_TAKE_PHOTO: {
-//                    if (resultCode == RESULT_OK) {
-//                        File file = new File(mCurrentPhotoPath);
-//                        Bitmap bitmap = MediaStore.Images.Media
-//                                .getBitmap(getContentResolver(), Uri.fromFile(file));
-//                        if (bitmap != null) {
-//                            imageView.setImageBitmap(bitmap);
-//                        }
-//                    }
-//                    break;
-//                } 이미지 90도 회전 전
                 case REQUEST_TAKE_PHOTO: {
                     if (resultCode == RESULT_OK) {
-                        File file = new File(mCurrentPhotoPath);
+                        File file = new File(mCurrentPhotoPath);//r걱정 안 하고 있었는데... 갑자기 걱정이 확 밀려오네....;;;;
                         Bitmap bitmap = MediaStore.Images.Media
                                 .getBitmap(getContentResolver(), Uri.fromFile(file));
                         if (bitmap != null) {
@@ -204,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     rotatedBitmap = bitmap;
                             }
 
+                            Log.d(TAG, "imageSetting");
+                            Log.d(TAG, "mCurrentPhotoPath : " + mCurrentPhotoPath );
                             imageView.setImageBitmap(rotatedBitmap);
 
                             imageUpload();
@@ -218,10 +180,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     private void imageUpload() {
-        String ImageUploadURL = "http://15.164.251.97/test/file_upload";
-//        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
+        String ImageUploadURL = "http://15.164.251.97/dvase/file_upload";
+        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
 
-        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+//        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+
+    //OKHTTP 사용 이미지 업로드 > 실패
+//
+    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setMessage("이미지 업로드중....");
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            Log.d(TAG, "params[0] : " + params[0]);
+            Log.d(TAG, "params[1] : " + params[1]);
+            try {
+                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
+                if (jsonObject != null)
+                    return jsonObject.getString("result").equals("success");
+
+            } catch (JSONException e) {
+                Log.i("TAG", "Error : " + e.getLocalizedMessage());
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (progressDialog != null)
+                progressDialog.dismiss();
+
+            if (aBoolean)
+                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
+//
+//            imagePath = "";
+//            textView.setVisibility(View.VISIBLE);
+//            imageView.setVisibility(View.INVISIBLE);
+        }
     }
 
     String lineEnd = "\r\n";
@@ -229,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String boundary = "*****";
 
     public void HttpFileUpload(String urlString, String params, String fileName) {
+        Log.d(TAG, "httpfileUpload");
         try {
             FileInputStream mFileInputStream;
             mFileInputStream = new FileInputStream(fileName);
@@ -291,57 +306,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // TODO: handle exception
         }
     }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
-
-    //OKHTTP 사용 이미지 업로드 > 실패
-//
-//    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
-//        ProgressDialog progressDialog;
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//            progressDialog = new ProgressDialog(MainActivity.this);
-//            progressDialog.setMessage("이미지 업로드중....");
-//            progressDialog.show();
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(String... params) {
-//            Log.d(TAG, "params[0] : " + params[0]);
-//            Log.d(TAG, "params[1] : " + params[1]);
-//            try {
-//                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
-//                if (jsonObject != null)
-//                    return jsonObject.getString("result").equals("success");
-//
-//            } catch (JSONException e) {
-//                Log.i("TAG", "Error : " + e.getLocalizedMessage());
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean aBoolean) {
-//            super.onPostExecute(aBoolean);
-//            if (progressDialog != null)
-//                progressDialog.dismiss();
-//
-//            if (aBoolean)
-//                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
-//            else
-//                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
-////
-////            imagePath = "";
-////            textView.setVisibility(View.VISIBLE);
-////            imageView.setVisibility(View.INVISIBLE);
-//        }
-//    }
-
 }

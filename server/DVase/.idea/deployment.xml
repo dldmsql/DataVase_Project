@@ -1,64 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="DVase" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="On explicit save action" serverName="DVaseServer">
     <serverData>
-      <paths name="DVase">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
-          </mappings>
-          <excludedPaths>
-            <excludedPath path="/application/cache" />
-            <excludedPath path="/application/config" />
-            <excludedPath path="/application/core" />
-            <excludedPath path="/application/helpers" />
-            <excludedPath path="/application/hooks" />
-            <excludedPath path="/application/language" />
-            <excludedPath path="/application/logs" />
-            <excludedPath path="/application/third_party" />
-            <excludedPath path="/system" />
-            <excludedPath path="/html/include" />
-            <excludedPath path="/html/phpmyadmin" />
-            <excludedPath path="/html/user_guide" />
-            <excludedPath path="/html/vendor" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/cache" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/config" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/core" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/helpers" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/hooks" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/language" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/logs" />
-            <excludedPath local="true" path="$PROJECT_DIR$/application/third_party" />
-            <excludedPath local="true" path="$PROJECT_DIR$/system" />
-            <excludedPath local="true" path="$PROJECT_DIR$/html/include" />
-            <excludedPath local="true" path="$PROJECT_DIR$/html/phpmyadmin" />
-            <excludedPath local="true" path="$PROJECT_DIR$/html/user_guide" />
-            <excludedPath local="true" path="$PROJECT_DIR$/html/vendor" />
-          </excludedPaths>
-        </serverdata>
-      </paths>
-      <paths name="MyServer">
+      <paths name="DVaseServer">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="Spreatics Server">
+      <paths name="Kyuri">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="aws-codingon">
+      <paths name="codingon">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="mentor-academy">
+      <paths name="codingon-dev">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="codingon_dev">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="kyuriServer">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="mentor-ocr">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="spreatics">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="travel-plus">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="travel-plus (1)">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
