@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -31,8 +32,10 @@ import org.json.JSONObject;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -207,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             imageView.setImageBitmap(rotatedBitmap);
 
                             imageUpload();
+//                            imageFileUpload(file, rotatedBitmap);
                         }
                     }
                     break;
@@ -218,10 +222,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     private void imageUpload() {
-        String ImageUploadURL = "http://15.164.251.97/test/file_upload";
-//        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
+        String ImageUploadURL = "http://15.164.251.97/file_upload.php";
+        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
 
-        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+//        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+    }
+
+    private void imageFileUpload(File file, Bitmap rotatedBitmap){
+        try {
+             OutputStream out = new FileOutputStream(file);
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
+        FileUploadUtils.send2Server(file);
     }
 
     String lineEnd = "\r\n";
@@ -301,47 +315,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //OKHTTP 사용 이미지 업로드 > 실패
 //
-//    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
-//        ProgressDialog progressDialog;
+    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setMessage("이미지 업로드중....");
+            progressDialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            Log.d(TAG, "params[0] : " + params[0]);
+            Log.d(TAG, "params[1] : " + params[1]);
+            try {
+                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
+
+                Log.d(TAG, "jsonObject : " + jsonObject);
+
+                if (jsonObject != null) {
+                    Log.d(TAG, "jsonObject is not null! - " + jsonObject.getString("result"));
+                    return jsonObject.getString("result").equals("success");
+                }
+                else Log.d(TAG, "jsonObject is null!");
+
+            } catch (JSONException e) {
+                Log.i("TAG", "Error : " + e.getLocalizedMessage());
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if (progressDialog != null)
+                progressDialog.dismiss();
+
+            if (aBoolean)
+                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
 //
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//            progressDialog = new ProgressDialog(MainActivity.this);
-//            progressDialog.setMessage("이미지 업로드중....");
-//            progressDialog.show();
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(String... params) {
-//            Log.d(TAG, "params[0] : " + params[0]);
-//            Log.d(TAG, "params[1] : " + params[1]);
-//            try {
-//                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
-//                if (jsonObject != null)
-//                    return jsonObject.getString("result").equals("success");
-//
-//            } catch (JSONException e) {
-//                Log.i("TAG", "Error : " + e.getLocalizedMessage());
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean aBoolean) {
-//            super.onPostExecute(aBoolean);
-//            if (progressDialog != null)
-//                progressDialog.dismiss();
-//
-//            if (aBoolean)
-//                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
-//            else
-//                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
-////
-////            imagePath = "";
-////            textView.setVisibility(View.VISIBLE);
-////            imageView.setVisibility(View.INVISIBLE);
-//        }
-//    }
+//            imagePath = "";
+//            textView.setVisibility(View.VISIBLE);
+//            imageView.setVisibility(View.INVISIBLE);
+        }
+    }
 
 }
