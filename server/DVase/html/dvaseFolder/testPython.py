@@ -94,7 +94,7 @@ if fileName != "" :
     scoreList.sort( key = lambda x:x[1] )
 
     finalResult = []
-    for result in scoreList[:Constants.TOP_SCORES] :
+    for result in scoreList[:15] :
         isLoop = True
         temp = []
         plantsName = result[0]
