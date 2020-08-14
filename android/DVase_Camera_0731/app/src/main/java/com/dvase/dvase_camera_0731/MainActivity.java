@@ -37,18 +37,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private int serverResponseCode = 0;
     final String TAG = "kyurii";
     ImageView imageView;
     Button cameraBtn;
     final static int TAKE_PICTURE = 1;
     String mCurrentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
+
+    String upLoadServerUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +75,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }
+
+        Button uploadButton = findViewById(R.id.upload);
+        uploadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadProfilPic();
+            }
+        });
+
+        upLoadServerUri = "http://15.164.251.97/dvaseFolder/uploadFile.php";
     }
 
     // 권한 요청
@@ -82,36 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Permission: " + permissions[0] + "was " + grantResults[0]);
         }
     }
-
-    // 버튼 onClick리스터 처리부분
-//    @Override
-//    public void onClick(View v) {
-//        switch(v.getId()){
-//            case R.id.camera_button:
-//                // 카메라 앱을 여는 소스
-//                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//                startActivityForResult(cameraIntent, TAKE_PICTURE);
-//                break;
-//        }
-//    }
-//
-//    // 카메라로 촬영한 영상을 가져오는 부분
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        super.onActivityResult(requestCode, resultCode, intent);
-//
-//        switch (requestCode) {
-//            case TAKE_PICTURE:
-//                if (resultCode == RESULT_OK && intent.hasExtra("data")) {
-//                    Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
-//                    if (bitmap != null) {
-//                        imageView.setImageBitmap(bitmap);
-//                    }
-//
-//                }
-//                break;
-//        }
-//    }
 
     @Override
     public void onClick(View v) {
@@ -209,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             imageView.setImageBitmap(rotatedBitmap);
 
-                            imageUpload();
+                            Log.d(TAG, "mCurrentPhotoPath : " + mCurrentPhotoPath);
 //                            imageFileUpload(file, rotatedBitmap);
                         }
                     }
@@ -221,11 +205,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             error.printStackTrace();
         }
     }
-    private void imageUpload() {
-        String ImageUploadURL = "http://15.164.251.97/file_upload.php";
-        new ImageUploadTask().execute(ImageUploadURL, mCurrentPhotoPath);
 
-//        HttpFileUpload(ImageUploadURL, "", mCurrentPhotoPath);
+    private void uploadProfilPic() {
+        new Thread(new Runnable() {
+            public void run() {
+
+                Log.d(TAG, "imagePath : " + mCurrentPhotoPath);
+                uploadFile(mCurrentPhotoPath);
+
+            }
+        }).start();
     }
 
     private void imageFileUpload(File file, Bitmap rotatedBitmap){
@@ -238,71 +227,103 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FileUploadUtils.send2Server(file);
     }
 
-    String lineEnd = "\r\n";
-    String twoHyphens = "--";
-    String boundary = "*****";
+    public int uploadFile(String sourceFileUri) {
+        String fileName = sourceFileUri;
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+        File sourceFile = new File(sourceFileUri);
 
-    public void HttpFileUpload(String urlString, String params, String fileName) {
-        try {
-            FileInputStream mFileInputStream;
-            mFileInputStream = new FileInputStream(fileName);
-            URL connectUrl = new URL(urlString);
-            Log.d("Test", "mFileInputStream  is " + mFileInputStream);
+        if (!sourceFile.isFile()) {
+            return 0;
+        } else {
+            try {
+                // open a URL connection to the Servlet
+                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                URL url = new URL(upLoadServerUri);
 
-            // open connection
-            HttpURLConnection conn = (HttpURLConnection)connectUrl.openConnection();
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setUseCaches(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Connection", "Keep-Alive");
-            conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                Log.d(TAG, "CONNECT?");
+                // Open a HTTP  connection to  the URL
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true); // Allow Inputs
+                conn.setDoOutput(true); // Allow Outputs
+                conn.setUseCaches(false); // Don't use a Cached Copy
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
 
-            // write data
-            DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-            dos.writeBytes(twoHyphens + boundary + lineEnd);
-            dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + fileName+"\"" + lineEnd);
-            dos.writeBytes(lineEnd);
+                dos = new DataOutputStream(conn.getOutputStream());
 
-            int bytesAvailable = mFileInputStream.available();
-            int maxBufferSize = 1024;
-            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\"" + fileName + "\"" + lineEnd);
 
-            byte[] buffer = new byte[bufferSize];
-            int bytesRead = mFileInputStream.read(buffer, 0, bufferSize);
+                dos.writeBytes(lineEnd);
 
-            Log.d(TAG, "image byte is " + bytesRead);
-
-            // read image
-            while (bytesRead > 0) {
-                dos.write(buffer, 0, bufferSize);
-                bytesAvailable = mFileInputStream.available();
+                // create a buffer of  maximum size
+                bytesAvailable = fileInputStream.available();
                 bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                bytesRead = mFileInputStream.read(buffer, 0, bufferSize);
+                buffer = new byte[bufferSize];
+
+                // read file and write it into form...
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0) {
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+
+                // send multipart form data necesssary after file data...
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+                serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                Log.i(TAG, "HTTP Response is : "
+                        + serverResponseMessage + ": " + serverResponseCode);
+
+                if (serverResponseCode == 200) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "File Upload Complete.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                //close the streams //
+                fileInputStream.close();
+                dos.flush();
+                dos.close();
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "MalformedURLException", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Got Exception : see logcat ",
+                                Toast.LENGTH_SHORT).show();
+
+                    }
+
+                });
             }
-
-            dos.writeBytes(lineEnd);
-            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-            // close streams
-            Log.e(TAG , "File is written");
-            mFileInputStream.close();
-            dos.flush(); // finish upload...
-
-            // get response
-            int ch;
-            InputStream is = conn.getInputStream();
-            StringBuffer b =new StringBuffer();
-            while( ( ch = is.read() ) != -1 ){
-                b.append( (char)ch );
-            }
-            String s=b.toString();
-            Log.e(TAG, "result = " + s);
-            dos.close();
-
-        } catch (Exception e) {
-            Log.d(TAG, "exception " + e.getMessage());
-            // TODO: handle exception
+            return serverResponseCode;
         }
     }
 
@@ -311,57 +332,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
-    }
-
-    //OKHTTP 사용 이미지 업로드 > 실패
-//
-    private  class ImageUploadTask extends AsyncTask<String, Integer, Boolean> {
-        ProgressDialog progressDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
-            progressDialog.setMessage("이미지 업로드중....");
-            progressDialog.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            Log.d(TAG, "params[0] : " + params[0]);
-            Log.d(TAG, "params[1] : " + params[1]);
-            try {
-                JSONObject jsonObject = JSONParser.uploadImage(params[0],params[1]);
-
-                Log.d(TAG, "jsonObject : " + jsonObject);
-
-                if (jsonObject != null) {
-                    Log.d(TAG, "jsonObject is not null! - " + jsonObject.getString("result"));
-                    return jsonObject.getString("result").equals("success");
-                }
-                else Log.d(TAG, "jsonObject is null!");
-
-            } catch (JSONException e) {
-                Log.i("TAG", "Error : " + e.getLocalizedMessage());
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            if (progressDialog != null)
-                progressDialog.dismiss();
-
-            if (aBoolean)
-                Toast.makeText(getApplicationContext(), "파일 업로드 성공", Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(getApplicationContext(), "파일 업로드 실패", Toast.LENGTH_LONG).show();
-//
-//            imagePath = "";
-//            textView.setVisibility(View.VISIBLE);
-//            imageView.setVisibility(View.INVISIBLE);
-        }
     }
 
 }
