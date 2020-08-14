@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "Dvase_gallery_upload_0814"
