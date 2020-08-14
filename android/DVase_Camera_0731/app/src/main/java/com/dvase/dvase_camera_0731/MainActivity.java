@@ -194,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             imageView.setImageBitmap(rotatedBitmap);
 
                             Log.d(TAG, "mCurrentPhotoPath : " + mCurrentPhotoPath);
-//                            imageFileUpload(file, rotatedBitmap);
                         }
                     }
                     break;
@@ -216,17 +215,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
     }
-
-    private void imageFileUpload(File file, Bitmap rotatedBitmap){
-        try {
-             OutputStream out = new FileOutputStream(file);
-            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
-        FileUploadUtils.send2Server(file);
-    }
-
     public int uploadFile(String sourceFileUri) {
         String fileName = sourceFileUri;
         HttpURLConnection conn = null;
