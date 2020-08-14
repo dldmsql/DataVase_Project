@@ -33,8 +33,8 @@ def imageMatching( image_path1, image_path2 ) :
     matches = sorted(matches, key = lambda x:x.distance)
 
     lengthCount = len( matches )
-    if lengthCount > Constants.COMPARE_MAX :
-        lengthCount = Constants.COMPARE_MAX
+    if lengthCount > 30 :
+        lengthCount = 30
 
     for i in range( lengthCount ) :
         difference = difference + matches[i].distance
@@ -67,7 +67,7 @@ for i in plantsList :
     tempList = pictureList( i )
     setList.append( tempList )
 
-fileName = "/var/www/html/dvaseFolder/learnSetImage/SANSEVIERIA/541322.jpg"
+fileName = "/var/www/html/dvaseFolder/learnSetImage/SANSEVIERIA/sansevieria1.jpg"
 
 scoreList = []
 

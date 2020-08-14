@@ -48,5 +48,13 @@ class Dvase extends CI_Controller{
         else echo "failed";
         // }
     }
+
+    public function workPythonFile(){
+        $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
+
+        $output = shell_exec( $command );
+
+        echo $output;
+    }
 }
 ?>
