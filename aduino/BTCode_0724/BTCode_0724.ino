@@ -70,7 +70,7 @@ void loop() {
 
   // send data to Android
   if (water > 850) {
-    if ((abs(water - preSH) > 50) && (isInit == 1)) {
+    if ((abs(water - preSH) > 50) ) { //&& (isInit == 1)
       BTSerial.println(h);
       BTSerial.println(t);
       BTSerial.println(water);
@@ -96,7 +96,7 @@ void loop() {
     {
       Serial.println("Moter ON");
       digitalWrite(motor, HIGH); // ON
-      delay(10000);
+      delay(4000);
       digitalWrite(motor, LOW); // OFF
     }
 //    Serial.println("water : " + water);
