@@ -56,5 +56,9 @@ class Dvase extends CI_Controller{
 
         echo $output;
     }
+
+    public function garden(){
+        $this->load->view( "dvase/garden_list" );
+    }
 }
 ?>
