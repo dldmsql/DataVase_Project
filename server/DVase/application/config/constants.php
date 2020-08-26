@@ -13,7 +13,8 @@ define( "SITE_IP", "15.164.251.97" );
 define( "SITE_URL", "http://15.164.251.97" );
 
 /* ---------------------------site specific*****************************/
-
+define( "DB_TABLE_PLANTS", "1_0_plants" );
+define( "DB_TABLE_PLANTS_FEATURE", "1_1_plants_feature" );
 
 define( "KEY_POST_RETURN", "return" );
 define( "KEY_POST_MSG", "msg" );
