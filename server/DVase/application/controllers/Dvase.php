@@ -60,5 +60,10 @@ class Dvase extends CI_Controller{
     public function garden(){
         $this->load->view( "dvase/garden_list" );
     }
+
+    public function removeFile(){
+        unlink( ".fileName" );
+
+    }
 }
 ?>
