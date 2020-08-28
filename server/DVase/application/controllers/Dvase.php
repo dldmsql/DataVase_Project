@@ -127,11 +127,7 @@ class Dvase extends CI_Controller{
 
         $features = $this->model_tools->get_by_where( DB_TABLE_PLANTS_FEATURE, $where );
 
-        $plant["features"] = array();
-
-        foreach ( $features->result_array() as $feature ){
-            array_push( $feature, $plant["features"] );
-        }
+        $plant["features"] = $features->result_array();
 
         $data = array(
             "plant" => $plant
