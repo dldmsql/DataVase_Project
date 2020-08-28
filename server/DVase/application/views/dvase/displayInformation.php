@@ -12,19 +12,57 @@
     </head>
 
     <body>
-        <table class="table" style="width: 80%" align="center">
+    <table class="table" style="width: 80%; text-align: center;" align="center">
+            <tr>
+                <td colspan="6">
+                <?
+                $dir = "./dvaseFolder/learnSetImage/".$plant["eng_name"]."/";
+                $url = "http://15.164.251.97/dvaseFolder/learnSetImage/".$plant["eng_name"]."/";
+
+                if ( is_dir( $dir ) ) {
+                    if ($dh = opendir($dir)) {
+                        echo '<img src="'.$url.readdir( $dh ).'" class="img-fluid" alt="Responsive image">';
+                        closedir($dh);
+                    }
+                }
+                ?>
+                </td>
+            </tr>
             <tr>
                 <td>이름</th>
-                <td colspan="5">Mark</td>
+                <td colspan="5"> <?= $plant["name"] ?> </td>
             </tr>
             <tr>
                 <td>영문이름</th>
-                <td colspan="5">Jacob</td>
+                <td colspan="5"> <?= $plant["eng_name"] ?> </td>
             </tr>
             <tr>
                 <td>꽃말</th>
-                <td colspan="5">Larry</td>
+                <td colspan="5"> <?= $plant["flower"] ?> </td>
             </tr>
+            <tr>
+                <td>관리 수준</th>
+                <td colspan="5"> <?= $plant["care"] ?> </td>
+            </tr>
+            <tr>
+                <td>물 주기</th>
+                <td colspan="5"> <?= $plant["water"] ?> </td>
+            </tr>
+            <?
+            $count = 1;
+            echo "<script> console.log(".sizeof( $plant["features"] ).") </script>";
+            for( $i = 0; $i < sizeof( $plant["features"] ); $i++ ){
+                echo "<script> console.log(".$i.") </script>";
+                echo '
+                <tr>
+                    <td> 특징 '.$count.' </td>
+                    <td colspan="5"> '.$plant["features"][$i]["feature"].'</td>
+                </tr>
+                ';
+                $i++;
+            }
+
+            ?>
         </table>
     </body>
 </html>
