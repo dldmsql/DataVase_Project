@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
                     String plant_ID = jobject.getString("ID");
                     String plant_name = jobject.getString("name");
 
-                    
+
                 }
                 setList();
             } catch (JSONException e) {
