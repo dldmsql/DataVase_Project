@@ -336,8 +336,6 @@ public class MainActivity extends AppCompatActivity {
     }
     private void setInfo(){
         if ( result!= null ) {
-            Log.d(TAG, "result가 null이 아니긴 하네?");
-            Log.d(TAG, "result : " + result );
             try {
                 JSONObject jobject = new JSONObject(result);
                 String return_value = jobject.getString("return");
@@ -346,7 +344,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                     result = "";
                 } else if (return_value.equals("true")) {
+                    Log.d(TAG, "result : " + result );
                     Log.d(TAG, "true");
+                    String plant_ID = jobject.getString("ID");
+                    String plant_name = jobject.getString("name");
+                    Toast.makeText(getApplicationContext(), "plant_information : " + plant_ID + " - " + plant_name, Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "plant_information : " + plant_ID + " - " + plant_name );
                 }
                 setList();
             } catch (JSONException e) {
@@ -358,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
         startProgress.hide();
     }
     private void uploadProfilPic() {
-//        startProgress();
+        startProgress();
         new Thread(new Runnable() {
             public void run() {
                 Log.d(TAG, "imagePath : " + mCurrentPhotoPath);
@@ -383,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
+        // Ensure that there's a camera activity to handle thgointent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
@@ -473,14 +476,14 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             Toast.makeText(MainActivity.this, "File Upload Complete.", Toast.LENGTH_SHORT).show();
 
-//                            getInfo();
-//
-//                            Handler mHandler = new Handler();
-//                            mHandler.postDelayed(new Runnable()  {
-//                                public void run() {
-//                                    setInfo();
-//                                }
-//                            }, 150000);
+                            getInfo();
+
+                            Handler mHandler = new Handler();
+                            mHandler.postDelayed(new Runnable()  {
+                                public void run() {
+                                    setInfo();
+                                }
+                            }, 30000);
                         }
                     });
                 }
