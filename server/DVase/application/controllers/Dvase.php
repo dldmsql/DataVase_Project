@@ -99,10 +99,12 @@ class Dvase extends CI_Controller{
         unlink( "./dvaseFolder/uploads/identified2.jpg" );
 
 //        echo $output;
+        $plantName = explode( "\n", $output );
+
         $this->load->model( "model_tools" );
 
         $where = array(
-            "eng_name" => $output
+            "eng_name" => $plantName[0]
         );
 
         $plant = $this->model_tools->get_by_where( DB_TABLE_PLANTS, $where, array(), 1 );
@@ -118,6 +120,9 @@ class Dvase extends CI_Controller{
 
     public function testView(){
         $this->load->view( "dvase/displayInformation" );
+    }
+    public function testView2(){
+        $this->load->view( "dvase/displayInformation_None" );
     }
 
 }
