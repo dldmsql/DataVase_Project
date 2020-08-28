@@ -67,7 +67,7 @@ for i in plantsList :
     tempList = pictureList( i )
     setList.append( tempList )
 
-fileName = "/var/www/html/dvaseFolder/learnSetImage/SANSEVIERIA/sansevieria1.jpg"
+fileName = "/var/www/html/dvaseFolder/uploads/identified.jpg"
 
 scoreList = []
 

@@ -20,7 +20,7 @@ class Dvase extends CI_Controller{
 
         echo $output;
     }
-    
+
     public function file_upload()
     {
         $this->load->library( "upload" );
@@ -65,5 +65,30 @@ class Dvase extends CI_Controller{
         unlink( ".fileName" );
 
     }
+
+    public function renameFile(){
+        echo rename( "./img/test.jpg", "./img/mju.jpg" );
+    }
+
+    public function idntify(){
+        $file_path = "uploads/";
+        $file_path = $file_path . basename( $_FILES['uploaded_file']['name']);
+
+        if(move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path)) {
+            rename( $file_path, "./uploads/identified.jpg" );
+
+            $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
+
+            $output = shell_exec( $command );
+
+            echo $output;
+
+            unlink( "./uploads/identified.jpg" );
+        }
+        else{
+            echo "알 수 없는 이유로 업로드에 실패했습니다.";
+        }
+    }
+
 }
 ?>
