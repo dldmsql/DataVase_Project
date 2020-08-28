@@ -26,9 +26,9 @@ public class Popup_9_9 extends Activity {
         Intent intent = getIntent();
         String controller = intent.getExtras().getString("controller");
         String mode = intent.getExtras().getString("mode");
-        int ID = intent.getExtras().getInt("ID");
+        String ID = intent.getExtras().getString("ID");
 
-        String url = "https://mentor-academy.info/" + controller + "/" + mode + "/" + ID;
+        String url = "http:/15.164.251.97/" + controller + "/" + mode + "/" + ID;
 
         Log.d(TAG, "url : " + url );
         mWebView.getSettings().setJavaScriptEnabled(true);

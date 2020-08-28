@@ -2,8 +2,12 @@ package com.dvase.dvase;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -58,19 +63,43 @@ public class ListViewAdapter extends BaseAdapter {
         this.listVO.clear();
     }
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View view, ViewGroup parent) {
         final int pos = position;
         context = parent.getContext();
 
-        if ( convertView == null ){
+        if ( view == null ){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.custom_listview, parent, false);
+            view = inflater.inflate(R.layout.custom_listview, parent, false);
         }
+        ImageView oPlantImage = (ImageView) view.findViewById(R.id.plant_image);
+        TextView oDate = (TextView) view.findViewById(R.id.date);
+        TextView oPlantName = (TextView) view.findViewById(R.id.plant_name);
 
-        ImageView image = (ImageView) convertView.findViewById((R.id.img));
-        TextView name = (TextView) convertView.findViewById(R.id.name);
-        final TextView contact = (TextView) convertView.findViewById(R.id.contact);
+        File file = new File(listVO.get(position).getPlantImagePath());
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.fromFile(file));
+            oPlantImage.setImageBitmap(bitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        oDate.setText(listVO.get(position).getDate());
+        oPlantName.setText(listVO.get(position).getPlantName());
 
-        return convertView;
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showIntent(listVO.get(position).getPlantID());
+            }
+        });
+
+        return view;
+    }
+    private void showIntent(String ID){
+        Intent intent = new Intent(context, Popup_9_9.class);
+        intent.putExtra("controller", "dvase" );
+        intent.putExtra("mode", "testView" );
+        intent.putExtra("ID", ID );
+
+        context.startActivity(intent);
     }
 }

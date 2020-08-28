@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -43,12 +44,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -105,18 +109,23 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog alert;
     private ProgressDialog startProgress;
 
-    ImageButton cameraBtn;
+    ImageButton cameraBtn, refresh, trash;
     ListView listView;
 
     private ListViewAdapter adapter;
-
+    ArrayList<VOGarden> voGardens;
     private BluetoothSPP bt;
+    private File saveFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.saveFile = new File(getFilesDir() + "/camdata");
+        Log.d(TAG, "saveFile : " + saveFile);
+        this.voGardens = new ArrayList<VOGarden>();
 
         checkPermission();
 
@@ -266,19 +275,26 @@ public class MainActivity extends AppCompatActivity {
     }
     public void setup(){
         cameraBtn = findViewById(R.id.camera_button);
-
-//        uploadButton = findViewById(R.id.upload);
-//        uploadButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                uploadProfilPic();
-//            }
-//        });
-
         cameraBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
+            }
+        });
+
+        refresh = findViewById(R.id.refresh);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refresh();
+            }
+        });
+
+        trash = findViewById(R.id.trash);
+        trash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearFile();
             }
         });
 
@@ -287,15 +303,30 @@ public class MainActivity extends AppCompatActivity {
 
 //        upLoadServerUri = "http://15.164.251.97/dvase/uploadFileManaging";
         upLoadServerUri = "http://15.164.251.97/dvaseFolder/uploadFile.php";
+        readFile();
+    }
+    private void refresh(){
+        Log.d(TAG, "readFile");
+        readFile();
+    }
+    private void clearFile(){
+        try {
+            BufferedWriter buffer = new BufferedWriter(new FileWriter(saveFile + "/CarnumData.txt", false));
+            buffer.write("");
+            buffer.close();
+
+            setList();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     private void setList(){
-        ArrayList<VOGarden> voGardens = null;
-
         adapter.removeAll();
         for ( int i = 0; i < voGardens.size(); i++ ){
             adapter.addVO( voGardens.get(i) );
         }
-
         listView.setAdapter(adapter);
     }
     String result = "";
@@ -344,12 +375,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                     result = "";
                 } else if (return_value.equals("true")) {
-                    Log.d(TAG, "result : " + result );
-                    Log.d(TAG, "true");
                     String plant_ID = jobject.getString("ID");
                     String plant_name = jobject.getString("name");
 
-
+                    Log.d(TAG, "writeFile 로 갑니다.");
+                    writeFile( plant_ID, plant_name );
                 }
                 setList();
             } catch (JSONException e) {
@@ -359,6 +389,76 @@ public class MainActivity extends AppCompatActivity {
         else Log.d(TAG, "result is null");
 
         startProgress.hide();
+    }
+    private void writeFile(String ID, String name ) {
+        if(!saveFile.exists()){
+            saveFile.mkdir(); // 폴더 생성
+        }
+        try {
+            long now = System.currentTimeMillis(); // 현재시간 받아오기
+            Date date = new Date(now); // Date 객체 생성
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String nowTime = sdf.format(date);
+
+            BufferedWriter buf = new BufferedWriter(new FileWriter(saveFile+"/CarnumData.txt", true));
+            buf.append(nowTime + "&&" );
+            buf.append(ID + "&&" );
+            buf.append(name + "&&" );
+            buf.append(mCurrentPhotoPath);
+            buf.newLine(); // 개행
+            buf.close();
+
+            Log.d(TAG, "FILE WRITE SUCCESS");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readFile() {
+        String line = null; // 한줄씩 읽기// 저장 경로
+        if(!saveFile.exists()){ // 폴더 없을 경우
+            saveFile.mkdir(); // 폴더 생성
+        }
+        try {
+            String data="";
+
+            Log.d(TAG, "읽을 준비 완료!");
+            BufferedReader buf = new BufferedReader(new FileReader(saveFile+"/CarnumData.txt"));
+            while((line=buf.readLine())!=null){
+                data = data + line + "%";
+            }
+            Log.d(TAG, "data : " + data );
+            String[] array = data.split("%");
+            Log.d(TAG, "array : " + array );
+
+            if ( array.length > 1 ){
+                voGardens.clear();
+                for ( int j = 0; j < array.length; j++ ) {
+                    Log.d(TAG, "array[j] : " + array[j]);
+                    String[] info = array[j].split("&&");
+
+                    VOGarden garden = new VOGarden();
+
+                    garden.setDate(info[0]);
+                    garden.setPlantID(info[1]);
+                    garden.setPlantName(info[2]);
+                    garden.setPlantImagePath(info[3]);
+
+                    voGardens.add(garden);
+                }
+            }
+
+            setList();
+
+            buf.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     private void uploadProfilPic() {
         startProgress();
