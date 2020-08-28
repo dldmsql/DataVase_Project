@@ -99,10 +99,12 @@ class Dvase extends CI_Controller{
         unlink( "./dvaseFolder/uploads/identified2.jpg" );
 
 //        echo $output;
+        $plantName = explode( "\n", $output );
+
         $this->load->model( "model_tools" );
 
         $where = array(
-            "eng_name" => $output
+            "eng_name" => $plantName[0]
         );
 
         $plant = $this->model_tools->get_by_where( DB_TABLE_PLANTS, $where, array(), 1 );
@@ -116,8 +118,29 @@ class Dvase extends CI_Controller{
         print( json_encode( $data_json ) );
     }
 
-    public function testView(){
-        $this->load->view( "dvase/displayInformation" );
+    public function testView( $ID ){
+        $plant = $this->model_tools->get( DB_TABLE_PLANTS, $ID );
+
+        $where = array(
+            "plant_ID" => $ID
+        );
+
+        $features = $this->model_tools->get_by_where( DB_TABLE_PLANTS_FEATURE, $where );
+
+        $plant["features"] = array();
+
+        foreach ( $features->result_array() as $feature ){
+            array_push( $feature, $plant["features"] );
+        }
+
+        $data = array(
+            "plant" => $plant
+        );
+
+        $this->load->view( "dvase/displayInformation", $data );
+    }
+    public function testView2(){
+        $this->load->view( "dvase/displayInformation_None" );
     }
 
 }

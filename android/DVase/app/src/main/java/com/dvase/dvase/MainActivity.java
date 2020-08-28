@@ -348,8 +348,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "true");
                     String plant_ID = jobject.getString("ID");
                     String plant_name = jobject.getString("name");
-                    Toast.makeText(getApplicationContext(), "plant_information : " + plant_ID + " - " + plant_name, Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "plant_information : " + plant_ID + " - " + plant_name );
+
+
                 }
                 setList();
             } catch (JSONException e) {
