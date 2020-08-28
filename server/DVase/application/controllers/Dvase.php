@@ -52,9 +52,16 @@ class Dvase extends CI_Controller{
     public function workPythonFile(){
         $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
 
+        echo "Start";
+        echo date( "h:i:s" );
         $output = shell_exec( $command );
 
+        echo "Running";
+
         echo $output;
+
+        echo "Finishing";
+        echo date( "h:i:s" );
     }
 
     public function garden(){
@@ -62,7 +69,7 @@ class Dvase extends CI_Controller{
     }
 
     public function removeFile(){
-        unlink( ".fileName" );
+        unlink( "./dvaseFolder/uploads/testPicture.jpg" );
 
     }
 
@@ -70,24 +77,28 @@ class Dvase extends CI_Controller{
         echo rename( "./img/test.jpg", "./img/mju.jpg" );
     }
 
-    public function idntify(){
+    public function uploadFileManaging(){
         $file_path = "uploads/";
         $file_path = $file_path . basename( $_FILES['uploaded_file']['name']);
 
         if(move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path)) {
             rename( $file_path, "./uploads/identified.jpg" );
-
-            $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
-
-            $output = shell_exec( $command );
-
-            echo $output;
-
-            unlink( "./uploads/identified.jpg" );
+            echo "업로드에 성공했습니다.";
         }
         else{
             echo "알 수 없는 이유로 업로드에 실패했습니다.";
         }
+    }
+
+    public function identifyPlant(){
+        $command = escapeshellcmd( "python /var/www/html/dvaseFolder/testPython.py" );
+
+        $output = shell_exec( $command );
+
+        unlink( "./dvaseFolder/uploads/identified.jpg" );
+        unlink( "./dvaseFolder/uploads/identified2.jpg" );
+
+        echo $output;
     }
 
 }

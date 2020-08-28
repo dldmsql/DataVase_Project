@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import os
+from PIL import Image
 
 def pictureList( plantName ) :
 	path = "/var/www/html/dvaseFolder/learnSetImage/" + plantName
@@ -67,7 +68,12 @@ for i in plantsList :
     tempList = pictureList( i )
     setList.append( tempList )
 
+originName = "/var/www/html/dvaseFolder/uploads/identified2.jpg"
 fileName = "/var/www/html/dvaseFolder/uploads/identified.jpg"
+
+image = Image.open( originName )
+resize_image = image.resize( (480, 480) )
+resize_image.save( fileName )
 
 scoreList = []
 
