@@ -107,4 +107,4 @@ if fileName != "" :
             temp.append( 0 )
             finalResult.append( temp )
 
-    print( finalResult[0][0] )
+    print( finalResult[0][0][:-2] )

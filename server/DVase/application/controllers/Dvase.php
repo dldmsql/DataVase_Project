@@ -8,7 +8,7 @@ class Dvase extends CI_Controller{
 
         $b = $a + 2;
 
-        if ( $b > 3 ) echo $c;
+        if ( $b > 3 ) echo $b;
 
         echo $b;
         echo "DVase222dd";
@@ -98,7 +98,26 @@ class Dvase extends CI_Controller{
         unlink( "./dvaseFolder/uploads/identified.jpg" );
         unlink( "./dvaseFolder/uploads/identified2.jpg" );
 
-        echo $output;
+//        echo $output;
+        $this->load->model( "model_tools" );
+
+        $where = array(
+            "eng_name" => $output
+        );
+
+        $plant = $this->model_tools->get_by_where( DB_TABLE_PLANTS, $where, array(), 1 );
+
+        $data_json = array(
+            "return" => "true",
+            "ID"     => $plant["ID"],
+            "name"   => $plant["name"]
+        );
+
+        print( json_encode( $data_json ) );
+    }
+
+    public function testView(){
+        $this->load->view( "dvase/displayInformation" );
     }
 
 }
