@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -25,9 +26,10 @@ import android.provider.Settings;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -44,9 +51,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,6 +71,12 @@ import java.util.UUID;
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 import app.akexorcist.bluetotohspp.library.DeviceList;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.ClientProtocolException;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.entity.UrlEncodedFormEntity;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.message.BasicNameValuePair;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "kyuri";
@@ -86,11 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
     String upLoadServerUri;
 
-
     private AlertDialog alert;
+    private ProgressDialog startProgress;
 
-    Button cameraBtn,uploadButton;
-    ImageView imageView;
+    ImageButton cameraBtn;
+    ListView listView;
+
+    private ListViewAdapter adapter;
 
     private BluetoothSPP bt;
 
@@ -120,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_ENABLE_BT);
             }
         }
+    }
+    private void startProgress(){
+        this.startProgress = new ProgressDialog(this);
+        this.startProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER);
+        this.startProgress.setMessage( "잠시만 기다려주세요." );
+        this.startProgress.show();
     }
     void sendData(String text, boolean isInt) {
         // 문자열에 개행문자("\n")를 추가해줍니다.
@@ -198,7 +222,9 @@ public class MainActivity extends AppCompatActivity {
                                     rotatedBitmap = bitmap;
                             }
 
-                            imageView.setImageBitmap(rotatedBitmap);
+//                            imageView.setImageBitmap(rotatedBitmap);
+
+                            uploadProfilPic();
 
                             Log.d(TAG, "mCurrentPhotoPath : " + mCurrentPhotoPath);
                         }
@@ -239,16 +265,15 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
     public void setup(){
-        imageView = findViewById(R.id.imageview);
         cameraBtn = findViewById(R.id.camera_button);
 
-        uploadButton = findViewById(R.id.upload);
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uploadProfilPic();
-            }
-        });
+//        uploadButton = findViewById(R.id.upload);
+//        uploadButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                uploadProfilPic();
+//            }
+//        });
 
         cameraBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -257,15 +282,87 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        listView = findViewById(R.id.listView);
+        adapter = new ListViewAdapter();
+
+//        upLoadServerUri = "http://15.164.251.97/dvase/uploadFileManaging";
         upLoadServerUri = "http://15.164.251.97/dvaseFolder/uploadFile.php";
     }
+    private void setList(){
+        ArrayList<VOGarden> voGardens = null;
+
+        adapter.removeAll();
+        for ( int i = 0; i < voGardens.size(); i++ ){
+            adapter.addVO( voGardens.get(i) );
+        }
+
+        listView.setAdapter(adapter);
+    }
+    String result = "";
+    private void getInfo(){
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                HttpClient httpClient = SessionControl.getHttpClient();
+                String urlString = "http://15.164.251.97/dvase/identifyPlant";
+                try {
+                    URI url = new URI(urlString);
+                    HttpPost httpPost = new HttpPost();
+                    httpPost.setURI(url);
+
+                    List<BasicNameValuePair> nameValuePairs = new ArrayList<BasicNameValuePair>(2);
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                    // httpClient.execute(httpPost);
+                    HttpResponse response = httpClient.execute(httpPost);
+                    BufferedReader bufreader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "utf-8"));
+                    String line = null;
+                    result = "";
+                    while ((line = bufreader.readLine()) != null) {
+                        result += line;
+                    }
+                } catch (URISyntaxException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
+    }
+    private void setInfo(){
+        if ( result!= null ) {
+            Log.d(TAG, "result가 null이 아니긴 하네?");
+            Log.d(TAG, "result : " + result );
+            try {
+                JSONObject jobject = new JSONObject(result);
+                String return_value = jobject.getString("return");
+                if (return_value.equals("false")) {
+                    String msg = jobject.getString("msg");
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                    result = "";
+                } else if (return_value.equals("true")) {
+                    Log.d(TAG, "true");
+                }
+                setList();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else Log.d(TAG, "result is null");
+
+        startProgress.hide();
+    }
     private void uploadProfilPic() {
+//        startProgress();
         new Thread(new Runnable() {
             public void run() {
-
                 Log.d(TAG, "imagePath : " + mCurrentPhotoPath);
                 uploadFile(mCurrentPhotoPath);
-
             }
         }).start();
     }
@@ -280,7 +377,6 @@ public class MainActivity extends AppCompatActivity {
                 storageDir      /* directory */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -376,9 +472,19 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(MainActivity.this, "File Upload Complete.", Toast.LENGTH_SHORT).show();
+
+//                            getInfo();
+//
+//                            Handler mHandler = new Handler();
+//                            mHandler.postDelayed(new Runnable()  {
+//                                public void run() {
+//                                    setInfo();
+//                                }
+//                            }, 150000);
                         }
                     });
                 }
+                else startProgress.hide();
                 //close the streams //
                 fileInputStream.close();
                 dos.flush();
@@ -410,6 +516,7 @@ public class MainActivity extends AppCompatActivity {
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
+        Log.d(TAG, "source.getWidth : " + source.getWidth() );
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
