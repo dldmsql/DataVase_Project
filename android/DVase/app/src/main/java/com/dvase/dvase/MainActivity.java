@@ -375,8 +375,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                     result = "";
                 } else if (return_value.equals("true")) {
+                    startProgress.hide();
                     String plant_ID = jobject.getString("ID");
                     String plant_name = jobject.getString("name");
+
+                    Intent intent = new Intent(getApplicationContext(), Popup_9_9.class);
+                    intent.putExtra("controller", "dvase" );
+                    intent.putExtra("mode", "testView" );
+                    intent.putExtra("ID", plant_ID );
+
+                    startActivity(intent);
 
                     Log.d(TAG, "writeFile 로 갑니다.");
                     writeFile( plant_ID, plant_name );
@@ -387,8 +395,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else Log.d(TAG, "result is null");
-
-        startProgress.hide();
     }
     private void writeFile(String ID, String name ) {
         if(!saveFile.exists()){
