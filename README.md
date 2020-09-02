@@ -34,14 +34,17 @@
 
 블루투스 연결
     < App build.gradle >
+    
     compile 'com.akexorcist:bluetoothspp:1.0.0'
     
-    < AndroidManifest.xml >
+   <AndroidManifest.xml >
+    
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 카메라 연결
     < AndroidManifest.xml >
+    
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
