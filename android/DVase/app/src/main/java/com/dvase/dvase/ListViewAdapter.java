@@ -95,6 +95,7 @@ public class ListViewAdapter extends BaseAdapter {
         return view;
     }
     private void showIntent(String ID){
+        // 목록이 선택되었을 때 정보창을 띄운다.
         Intent intent = new Intent(context, Popup_9_9.class);
         intent.putExtra("controller", "dvase" );
         intent.putExtra("mode", "testView" );

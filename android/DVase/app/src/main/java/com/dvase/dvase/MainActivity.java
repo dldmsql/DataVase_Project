@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void startProgress(){
+        // 사진이 찍힌 후 정보가 올 때까지 progress bar을 띄워놓는다.
         this.startProgress = new ProgressDialog(this);
         this.startProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER);
         this.startProgress.setMessage( "잠시만 기다려주세요." );
@@ -159,14 +160,10 @@ public class MainActivity extends AppCompatActivity {
         int txt = 0;
         if ( isInt ) txt = Integer.parseInt( text );
 
-        Log.d(TAG, "데이터보냄");
-
         try{
-            // 데이터 송신
+            // 데이터를 기기로 전송한다.
             if ( isInt) outputStream.write(txt);
             else outputStream.write(text.getBytes());
-
-//            outputStream.flush();
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -178,9 +175,8 @@ public class MainActivity extends AppCompatActivity {
             switch (requestCode) {
                 case REQUEST_ENABLE_BT:
                     if (requestCode == RESULT_OK) { // '사용'을 눌렀을 때
-                        selectBluetoothDevice(); // 블루투스 디바이스 선택 함수 호출
+                        selectBluetoothDevice(); // 블루투스 디바이스 선택 함수를 호출한다.
                     } else { // '취소'를 눌렀을 때
-                        // 여기에 처리 할 코드를 작성하세요.
                     }
                     break;
 
@@ -207,35 +203,8 @@ public class MainActivity extends AppCompatActivity {
                         File file = new File(mCurrentPhotoPath);
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(file));
                         if (bitmap != null) {
-                            ExifInterface ei = new ExifInterface(mCurrentPhotoPath);
-                            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                                    ExifInterface.ORIENTATION_UNDEFINED);
-
-                            Bitmap rotatedBitmap = null;
-                            switch (orientation) {
-
-                                case ExifInterface.ORIENTATION_ROTATE_90:
-                                    rotatedBitmap = rotateImage(bitmap, 90);
-                                    break;
-
-                                case ExifInterface.ORIENTATION_ROTATE_180:
-                                    rotatedBitmap = rotateImage(bitmap, 180);
-                                    break;
-
-                                case ExifInterface.ORIENTATION_ROTATE_270:
-                                    rotatedBitmap = rotateImage(bitmap, 270);
-                                    break;
-
-                                case ExifInterface.ORIENTATION_NORMAL:
-                                default:
-                                    rotatedBitmap = bitmap;
-                            }
-
-//                            imageView.setImageBitmap(rotatedBitmap);
-
+                            // 사진이 올바르게 찍히면 사진을 업로드하는 함수를 실행한다.
                             uploadProfilPic();
-
-                            Log.d(TAG, "mCurrentPhotoPath : " + mCurrentPhotoPath);
                         }
                     }
                     break;
@@ -244,34 +213,6 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e ){
             e.printStackTrace();
         }
-
-//        if(requestCode==CAMERA_REQUEST_CODE){
-//
-//            Bundle bundle = data.getExtras();
-//            bundle.get("data");
-//
-//            Bitmap bitmap = (Bitmap) bundle.get("data");
-//            Bitmap compressBitmap = compressBitmap(bitmap);
-//            imageView.setImageBitmap(compressBitmap);
-//
-//            String destFolder = Environment.getExternalStorageDirectory().toString();
-//            String date = new SimpleDateFormat("yyyy_MM_dd_hh_mm_ss").format(new Date());
-//
-//            try {
-//                FileOutputStream out = new FileOutputStream(destFolder + "/video/" + date + ".jpg");
-////                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-//                compressBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-//                Toast.makeText(this, "사진 자동 업로드", Toast.LENGTH_SHORT).show();
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//                Toast.makeText(this, "폴더를 찾지 못해 업로드하지 못했습니다.", Toast.LENGTH_SHORT).show();
-//                return;
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                Toast.makeText(this, "이미지를 불러오지 못해 업로드하지 못했습니다.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//        }
     }
     public void setup(){
         cameraBtn = findViewById(R.id.camera_button);
@@ -301,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         adapter = new ListViewAdapter();
 
-//        upLoadServerUri = "http://15.164.251.97/dvase/uploadFileManaging";
+        // 사진을 업로드할 주소를 적는다.
         upLoadServerUri = "http://15.164.251.97/dvaseFolder/uploadFile.php";
         readFile();
     }
@@ -323,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void setList(){
+        // 새롭게 목록을 다시 세팅한다.
         adapter.removeAll();
         for ( int i = 0; i < voGardens.size(); i++ ){
             adapter.addVO( voGardens.get(i) );
@@ -336,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 HttpClient httpClient = SessionControl.getHttpClient();
                 String urlString = "http://15.164.251.97/dvase/identifyPlant";
+                // 정보를 전송할 주소를 설정한다.
                 try {
                     URI url = new URI(urlString);
                     HttpPost httpPost = new HttpPost();
@@ -348,6 +291,8 @@ public class MainActivity extends AppCompatActivity {
                     BufferedReader bufreader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "utf-8"));
                     String line = null;
                     result = "";
+
+                    // 응답값을 while문으로 result에 저장됟게 받아온다.
                     while ((line = bufreader.readLine()) != null) {
                         result += line;
                     }
@@ -371,14 +316,18 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jobject = new JSONObject(result);
                 String return_value = jobject.getString("return");
                 if (return_value.equals("false")) {
+                    // 서버로부터 올바르지 못하게 왔을 때, 메세지를 토스트 메세지로 띄운다.
                     String msg = jobject.getString("msg");
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                     result = "";
                 } else if (return_value.equals("true")) {
+                    // 서버로부터 올바르게 검색되었다고 응답이 올 경우
                     startProgress.hide();
+                    // progress bar 을 내린다.
                     String plant_ID = jobject.getString("ID");
                     String plant_name = jobject.getString("name");
 
+                    // json으로 전송받은 데이터를 나눈다.
                     Intent intent = new Intent(getApplicationContext(), Popup_9_9.class);
                     intent.putExtra("controller", "dvase" );
                     intent.putExtra("mode", "testView" );
@@ -386,8 +335,9 @@ public class MainActivity extends AppCompatActivity {
 
                     startActivity(intent);
 
-                    Log.d(TAG, "writeFile 로 갑니다.");
+                    // intent 로 정보를 보낸다.
                     writeFile( plant_ID, plant_name );
+                    // 정보를 저장하기 위해 파일이 아이디, 이름, 사진의 주소를 입력한다.
                 }
                 setList();
             } catch (JSONException e) {
@@ -630,39 +580,39 @@ public class MainActivity extends AppCompatActivity {
                 matrix, true);
     }
     public void selectBluetoothDevice() {
-        // 이미 페어링 되어있는 블루투스 기기를 찾습니다.
+        // 이미 페어링 되어있는 블루투스 기기를 찾는다.
         devices = bluetoothAdapter.getBondedDevices();
-        // 페어링 된 디바이스의 크기를 저장
+        // 페어링 된 디바이스의 크기를 저장한다.
         pariedDeviceCount = devices.size();
         // 페어링 되어있는 장치가 없는 경우
         if(pariedDeviceCount == 0) {
-            // 페어링을 하기위한 함수 호출
+            // 페어링을 하기위한 함수 호출한다.
         }
         // 페어링 되어있는 장치가 있는 경우
         else {
-            // 디바이스를 선택하기 위한 다이얼로그 생성
+            // 디바이스를 선택하기 위한 다이얼로그를 생성한다.
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("페어링 되어있는 블루투스 디바이스 목록");
 
-            // 페어링 된 각각의 디바이스의 이름과 주소를 저장
+            // 페어링 된 각각의 디바이스의 이름과 주소를 저장한다.
             List<String> list = new ArrayList<>();
 
-            // 모든 디바이스의 이름을 리스트에 추가
+            // 모든 디바이스의 이름을 리스트에 추가한다.
             for(BluetoothDevice bluetoothDevice : devices) {
                 list.add(bluetoothDevice.getName());
             }
             list.add("취소");
 
-            // List를 CharSequence 배열로 변경
+            // List를 CharSequence 배열로 변경한다.
 
             final CharSequence[] charSequences = list.toArray(new CharSequence[list.size()]);
             list.toArray(new CharSequence[list.size()]);
 
-            // 해당 아이템을 눌렀을 때 호출 되는 이벤트 리스너
+            // 해당 아이템을 눌렀을 때 호출 되는 이벤트 리스너를 정의한다
             builder.setItems(charSequences, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    // 해당 디바이스와 연결하는 함수 호출
+                    // 해당 디바이스와 연결하는 함수 호출한다.
                     deviceName = charSequences[which].toString();
 
                     if ( !deviceName.equals("취소")){
@@ -673,18 +623,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            // 뒤로가기 버튼 누를 때 창이 안닫히도록 설정
+            // 뒤로가기 버튼 누를 때 창이 안닫히도록 설정한다.
             builder.setCancelable(false);
-            // 다이얼로그 생성
+            // 다이얼로그를 생성한다.
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         }
     }
     String deviceName = "";
     public void connectDevice(String deviceName) {
-        // 페어링 된 디바이스들을 모두 탐색
+        // 페어링 된 디바이스들을 모두 탐색한다.
         for(BluetoothDevice tempDevice : devices) {
-            // 사용자가 선택한 이름과 같은 디바이스로 설정하고 반복문 종료
+            // 사용자가 선택한 이름과 같은 디바이스로 설정하고 반복문을 종료한다.
             if(deviceName.equals(tempDevice.getName())) {
                 bluetoothDevice = tempDevice;
                 break;
@@ -693,7 +643,7 @@ public class MainActivity extends AppCompatActivity {
 
         // UUID 생성
         UUID uuid = java.util.UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-        // Rfcomm 채널을 통해 블루투스 디바이스와 통신하는 소켓 생성
+        // Rfcomm 채널을 통해 블루투스 디바이스와 통신하는 소켓을 생성한다.
         try {
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
             bluetoothSocket.connect();
@@ -722,7 +672,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 while(!Thread.currentThread().isInterrupted()) {
                     try {
-                        // 데이터를 수신했는지 확인합니다.
+                        // 데이터를 수신했는지 확인한다.
                         int byteAvailable = inputStream.available();
 
                         // 데이터가 수신 된 경우
@@ -732,6 +682,7 @@ public class MainActivity extends AppCompatActivity {
                                 mHandler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
+                                        // btControl 함수를 호출한다.
                                         btControl();
                                     }
                                 }, 500);

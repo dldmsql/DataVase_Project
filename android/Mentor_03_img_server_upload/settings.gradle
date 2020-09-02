@@ -1,2 +1,0 @@
-include ':app'
-rootProject.name = "Mentor_03_img_server_upload"
